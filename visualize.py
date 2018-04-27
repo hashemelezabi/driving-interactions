@@ -13,6 +13,7 @@ import utils
 import feature
 import pickle
 import sys
+import pprint
 from car import Car
 
 class Visualizer(object):
@@ -97,6 +98,9 @@ class Visualizer(object):
         if symbol == key.S:
             with open('data/%s-%d.pickle'%(self.name, int(time.time())), 'w') as f:
                 pickle.dump((self.history_u, self.history_x), f)
+                pp = pprint.PrettyPrinter(indent=4)
+                #pp.pprint(self.history_u)
+                pp.pprint(self.history_x)
             self.reset()
     def control_loop(self, _=None):
         #print "Time: ", time.time()
@@ -290,6 +294,12 @@ class Visualizer(object):
         if filename is not None:
             with open(filename) as f:
                 self.feed_u, self.feed_x = pickle.load(f)
+                # Control is (steer, gas)
+                #self.feed_u[0] = [np.array((x[0]*(math.pi/360.), x[1])) for x in self.feed_u[0]]
+                #self.feed_u[1] = [np.array((x[1], 0.0)) for x in self.feed_u[1]]
+                print(self.feed_u[0])
+                print(self.feed_u[1])
+                # exit()
         if self.output is None:
             pyglet.clock.schedule_interval(self.animation_loop, 0.02)
             pyglet.clock.schedule_interval(self.control_loop, self.dt)

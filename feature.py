@@ -29,7 +29,9 @@ def feature(f):
 def speed(s=1.):
     @feature
     def f(t, x, u):
-        return -(x[3]-s)*(x[3]-s)
+        # HARD CODED SPEED
+        speed = 50.
+        return -(x[3]-s)*(x[3]-s)/speed
     return f
 
 def control():

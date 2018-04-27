@@ -273,6 +273,20 @@ def world6(know_model=True):
         world.cars[1].reward = r
     return world
 
+def world7():
+    dyn = dynamics.CarDynamics(0.1)
+    world = World()
+    clane = lane.StraightLane([0, 0], [0, 0.5], 0.7)
+    #world.lanes += [clane, clane.shifted(1), clane.shifted(-1)]
+    world.lanes += [clane]
+    world.roads += [clane]
+    #world.fences += [clane.shifted(2), clane.shifted(-2)]
+    world.fences += [clane.shifted(2), clane.shifted(0)]
+    world.cars.append(car.UserControlledCar(dyn, [0.07, 0., 0., 0.3], color='red'))
+    world.cars.append(car.SimpleOptimizerCar(dyn, [0.0, 0.0, 0., 0.0], color='yellow'))
+    world.cars[1].reward = world.simple_reward(world.cars[1], speed=0.5)
+    return world
+
 def world_features(num=0):
     dyn = dynamics.CarDynamics(0.1)
     world = World()
