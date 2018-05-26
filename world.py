@@ -39,7 +39,9 @@ class World(object):
         elif isinstance(trajs, car.Car):
             trajs = [c.linear for c in self.cars if c!=trajs]
         r = 0.1*feature.control()
-        theta = [1., -50., 10., 10., -60.] # Simple model
+        # theta = [1., -50., 10., 10., -60., 10.] # Simple model
+        theta = [2.05026991,-50.,9.99045658,0.14135938,-60.] # Learned model
+        # theta = [2.05026991,-50.,9.99045658,5,-60.]
         # theta = [.959, -46.271, 9.015, 8.531, -57.604]
         for lane in lanes:
             r = r+theta[0]*lane.gaussian()

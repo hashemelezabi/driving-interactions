@@ -67,7 +67,7 @@ if __name__ == '__main__':
                 #print("point: {}".format(point))
                 train.append(point)
     theta = utils.vector(5)
-    theta.set_value(np.array([1., -50., 10., 10., -60.]))
+    theta.set_value(np.array([1., -50., 10., 10., -60.])) # Base Model
     #theta.set_value(np.array([2., -5., 10., 10., -60.]))
     r = 0.1*feature.control()
     for lane in the_world.lanes:

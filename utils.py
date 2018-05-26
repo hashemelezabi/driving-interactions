@@ -132,8 +132,8 @@ class Maximizer(object):
                 res = self.func(*[x0[a:b] for a, b in self.sz])
                 #print("res: {}".format(res))
                 #if np.isnan(res[0]).any() or np.isnan(res[1]).any() or (np.abs(res[0])>self.inf_ignore).any() or (np.abs(res[1])>self.inf_ignore).any():
-                if np.isnan(res[0]).any() or np.isnan(res[1]).any() or (np.abs(res[1])>self.inf_ignore).any():
-                    continue
+                #if np.isnan(res[0]).any() or np.isnan(res[1]).any() or (np.abs(res[1])>self.inf_ignore).any():
+                    #continue
                 if s is None:
                     s = res
                     N = 1
