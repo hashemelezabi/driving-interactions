@@ -1,3 +1,5 @@
+#Peggy's code
+
 import pickle
 #import numpy as np
 import subprocess
@@ -6,8 +8,8 @@ import matplotlib.pyplot as plt
 
 dt = 0.1
 
-file = open('data/world0-1527286477.pickle', 'r')
-#file = open('data/simple_simulation.pickle', 'r')
+#file = open('data/world0-1527286477.pickle', 'r')
+file = open('data/roadfeatureremove.pickle', 'r')
 
 u, x = pickle.load(file)
 uh, ur = u
@@ -34,8 +36,8 @@ robot_steer = ur[0]
 robot_acceleration = ur[1]
 
 #plt.plot(t, human_acceleration)
-plt.plot(t, human_x)
-plt.plot(t, robot_x)
+plt.plot(t, human_x, color='blue')
+plt.plot(t, robot_x, color='green')
 plt.show()
 print t.shape
 print human_x.shape
