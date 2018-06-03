@@ -40,7 +40,9 @@ class World(object):
             trajs = [c.linear for c in self.cars if c!=trajs]
         r = 0.1*feature.control()
         # theta = [1., -50., 10., 10., -60., 10.] # Simple model
-        theta = [2.05026991,-50.,9.99045658,0.14135938,-60.] # Learned model
+        # theta = [2.05026991,-50.,9.99045658,0.14135938,-60.] # Learned model
+        # theta = [ 5.97469800e+00, -40.0789372,  10.0000000,  .0168410493, -60.0000000]
+        theta = [-118.675528, -49.9917950,  10.0000000, -.0158836823, -604.318363]
         # theta = [2.05026991,-50.,9.99045658,5,-60.]
         # theta = [.959, -46.271, 9.015, 8.531, -57.604]
         for lane in lanes:
@@ -226,6 +228,57 @@ def world4(flag=False):
     world.cars[1].rewards = (r_h, r_r)
     return world
 
+def world4humans(flag=False):
+    dyn = dynamics.CarDynamics(0.1)
+    world = World()
+    vlane = lane.StraightLane([0., -1.], [0., 1.], 0.13)
+    hlane = lane.StraightLane([-1., 0.], [1., 0.], 0.13)
+    world.lanes += [vlane, hlane]
+    world.fences += [hlane.shifted(-1), hlane.shifted(1)]
+    world.cars.append(car.UserControlledCar(dyn, [0., -.3, math.pi/2., 0.0], color='red'))
+    world.cars.append(car.UserControlledCar(dyn, [-0.3, 0., 0., 0.], color='yellow', controls='wasd'))
+    world.cars[1].human = world.cars[0]
+    world.cars[0].bounds = [(-3., 3.), (-2., 2.)]
+    if flag:
+        world.cars[0].follow = world.cars[1].traj_h
+    world.cars[1].bounds = [(-3., 3.), (-2., 2.)]
+    @feature.feature
+    def horizontal(t, x, u):
+        return -x[2]**2
+    #r_h = world.simple_reward([world.cars[1].traj], lanes=[vlane], fences=[vlane.shifted(-1), vlane.shifted(1)]*2)+100.*feature.bounded_control(world.cars[0].bounds)
+    @feature.feature
+    def human(t, x, u):
+        return -tt.exp(-10*(world.cars[1].traj_h.x[t][1]-0.13)/0.1)
+    #r_r = human*10.+horizontal*30.+world.simple_reward(world.cars[1], lanes=[hlane]*3, fences=[hlane.shifted(-1), hlane.shifted(1)]*3+[hlane.shifted(-1.5), hlane.shifted(1.5)]*2, speed=0.9)
+    #world.cars[1].rewards = (r_h, r_r)
+    return world
+
+def world4test(flag=False):
+    dyn = dynamics.CarDynamics(0.1)
+    world = World()
+    vlane = lane.StraightLane([0., -1.], [0., 1.], 0.13)
+    hlane = lane.StraightLane([-1., 0.], [1., 0.], 0.13)
+    world.lanes += [vlane, hlane]
+    world.fences += [hlane.shifted(-1), hlane.shifted(1)]
+    world.cars.append(car.UserControlledCar(dyn, [0., -.3, math.pi/2., 0.0], color='red'))
+    world.cars.append(car.NestedOptimizerCar(dyn, [-0.3, 0., 0., 0.], color='yellow'))
+    world.cars[1].human = world.cars[0]
+    world.cars[0].bounds = [(-3., 3.), (-2., 2.)]
+    if flag:
+        world.cars[0].follow = world.cars[1].traj_h
+    world.cars[1].bounds = [(-3., 3.), (-2., 2.)]
+    @feature.feature
+    def horizontal(t, x, u):
+        return -x[2]**2
+    r_h = world.simple_reward([world.cars[1].traj], lanes=[vlane], fences=[vlane.shifted(-1), vlane.shifted(1)]*2)+100.*feature.bounded_control(world.cars[0].bounds)
+    @feature.feature
+    def human(t, x, u):
+        return -tt.exp(-10*(world.cars[1].traj_h.x[t][1]-0.13)/0.1)
+    r_r = human*10.+horizontal*30.+world.simple_reward(world.cars[1], lanes=[hlane]*3, fences=[hlane.shifted(-1), hlane.shifted(1)]*3+[hlane.shifted(-1.5), hlane.shifted(1.5)]*2, speed=0.9)
+    world.cars[1].rewards = (r_h, r_r)
+    # world.cars[1].reward = r_h
+    return world
+
 def world5():
     dyn = dynamics.CarDynamics(0.1)
     world = World()
@@ -287,6 +340,36 @@ def world7():
     world.cars.append(car.UserControlledCar(dyn, [0.07, 0., 0., 0.3], color='red'))
     world.cars.append(car.SimpleOptimizerCar(dyn, [0.0, 0.0, 0., 0.0], color='yellow'))
     world.cars[1].reward = world.simple_reward(world.cars[1], speed=0.5)
+    return world
+
+# NEW WORLD
+def world8(flag=False):
+    dyn = dynamics.CarDynamics(0.1)
+    world = World()
+    vlane = lane.StraightLane([0., -1.], [0., 1.], 0.15)
+    hlane = lane.StraightLane([-1., 0.], [1., 0.], 0.15)
+
+    world.lanes += [vlane.shifted(0.5), vlane.shifted(-0.5), hlane.shifted(0.5), hlane.shifted(-0.5)]
+
+    world.fences += [hlane.shifted(-0.5), hlane.shifted(0.5)]
+
+
+    world.cars.append(car.UserControlledCar(dyn, [0., -.3, math.pi/2., 0.0], color='red'))
+    world.cars.append(car.NestedOptimizerCar(dyn, [-0.3, 0., 0., 0.], color='blue'))
+    world.cars[1].human = world.cars[0]
+    world.cars[0].bounds = [(-3., 3.), (-2., 2.)]
+    if flag:
+        world.cars[0].follow = world.cars[1].traj_h
+    world.cars[1].bounds = [(-3., 3.), (-2., 2.)]
+    @feature.feature
+    def horizontal(t, x, u):
+        return -x[2]**2
+    r_h = world.simple_reward([world.cars[1].traj], lanes=[vlane], fences=[vlane.shifted(-1), vlane.shifted(1)]*2)+100.*feature.bounded_control(world.cars[0].bounds)
+    @feature.feature
+    def human(t, x, u):
+        return -tt.exp(-10*(world.cars[1].traj_h.x[t][1]-0.13)/0.1)
+    r_r = human*10.+horizontal*30.+world.simple_reward(world.cars[1], lanes=[hlane]*3, fences=[hlane.shifted(-1), hlane.shifted(1)]*3+[hlane.shifted(-1.5), hlane.shifted(1.5)]*2, speed=0.9)
+    world.cars[1].rewards = (r_h, r_r)
     return world
 
 def world_features(num=0):

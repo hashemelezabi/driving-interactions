@@ -95,7 +95,7 @@ class Visualizer(object):
                 self.joystick.open()
         if symbol == key.D:
             self.reset()
-        if symbol == key.S:
+        if symbol == key.F: # changed to F so that S can be used for cars with 'wasd' key controls
             with open('data/%s-%d.pickle'%(self.name, int(time.time())), 'w') as f:
                 pickle.dump((self.history_u, self.history_x), f)
                 pp = pprint.PrettyPrinter(indent=4)
@@ -116,25 +116,41 @@ class Visualizer(object):
             return
         if self.pause_every is not None and self.pause_every>0 and len(self.history_u[0])%self.pause_every==0:
             self.paused = True
-        steer = 0.
-        gas = 0.
+        steer_arrows = 0.
+        gas_arrows = 0.
         if self.keys[key.UP]:
-            gas += 1.
+            gas_arrows += 1.
         if self.keys[key.DOWN]:
-            gas -= 1.
+            gas_arrows -= 1.
         if self.keys[key.LEFT]:
-            steer += 1.5
+            steer_arrows += 1.5
         if self.keys[key.RIGHT]:
-            steer -= 1.5
+            steer_arrows -= 1.5
         if self.joystick:
-            steer -= self.joystick.x*3.
-            gas -= self.joystick.y
+            steer_arrows -= self.joystick.x*3.
+            gas_arrows -= self.joystick.y
+        steer_wasd = 0. # for cars controlled using the 'wasd' keys
+        gas_wasd = 0.
+        if self.keys[key.W]:
+            gas_wasd += 1.
+        if self.keys[key.S]:
+            gas_wasd -= 1.
+        if self.keys[key.A]:
+            steer_wasd += 1.5
+        if self.keys[key.D]:
+            steer_wasd -= 1.5
+        if self.joystick:
+            steer_wasd -= self.joystick.x*3.
+            gas_wasd -= self.joystick.y
         self.heatmap_valid = False
         for car in self.cars:
             self.prev_x[car] = car.x
         if self.feed_u is None:
             for car in reversed(self.cars):
-                car.control(steer, gas)
+                if car.controls == 'wasd':
+                    car.control(steer_wasd, gas_wasd)
+                else:
+                    car.control(steer_arrows, gas_arrows)
         else:
             for car, fu, hu in zip(self.cars, self.feed_u, self.history_u):
                 car.u = fu[len(hu)]
